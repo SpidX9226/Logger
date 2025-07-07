@@ -32,9 +32,10 @@ public:
 
 class Logger : public AbstractLogger {
 private:
+	std::string from;
 	std::string name;
 public:
-	Logger(std::string_view name) : name(name) {}
+	Logger(std::string_view name = "", std::string_view from = "") : name(name), from(from) {}
 
 	std::string get_timestamp() {
 		auto now = std::chrono::floor<std::chrono::seconds>(std::chrono::system_clock::now());
@@ -44,7 +45,7 @@ public:
 	void log(std::string_view msg) override {
 		auto now = std::chrono::floor<std::chrono::seconds>(std::chrono::system_clock::now());
 
-		std::print("[{:%Y-%m-%d %H:%M:%S}] [{}] {}\n", now, name, msg);
+		std::print("[{:%H:%M:%S}] [{}] ({}) {}\n", now, from, name, msg);
 	}
 };
 
@@ -61,7 +62,7 @@ int main() {
 	SimpleLogger simple_logger = SimpleLogger("well");
 	simple_logger.log("hello ");
 
-	Logger* logger = new Logger("Main");
+	Logger* logger = new Logger("Main", "Initialization");
 
 	logger->log("Hello world!");
 
