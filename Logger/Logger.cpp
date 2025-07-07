@@ -1,6 +1,10 @@
 ﻿#include <print>
 #include <string>
 #include <string_view>
+#include <fstream>
+#include <chrono>
+#include <iostream>
+#include <format>
 
 class AbstractLogger {
 public:
@@ -17,18 +21,49 @@ public:
 
 	void log(std::string_view msg) override {
 		if (!name.empty()) {
-			std::print("[{}] {}", name, msg);
+			std::print("[{}] {}\n", name, msg);
 		}
 		else {
-			std::print("{}", msg);
+			std::print("{}\n", msg);
 		}
 	}
 };
 
-int main() {
-	SimpleLogger logger = SimpleLogger("well");
 
-	logger.log("hello");
+class Logger : public AbstractLogger {
+private:
+	std::string name;
+public:
+	Logger(std::string_view name) : name(name) {}
+
+	std::string get_timestamp() {
+		auto now = std::chrono::floor<std::chrono::seconds>(std::chrono::system_clock::now());
+		return std::format("{:%Y-%m-%d %H:%M:%S}", now);
+	}
+
+	void log(std::string_view msg) override {
+		auto now = std::chrono::floor<std::chrono::seconds>(std::chrono::system_clock::now());
+
+		std::print("[{:%Y-%m-%d %H:%M:%S}] [{}] {}\n", now, name, msg);
+	}
+};
+
+/*
+class CLogger : public AbstractLogger {
+private:
+	std::string name;
+	bool is_err;
+public:
+};
+*/
+
+int main() {
+	SimpleLogger simple_logger = SimpleLogger("well");
+	simple_logger.log("hello ");
+
+	Logger* logger = new Logger("Main");
+
+	logger->log("Hello world!");
 
 	return 0;
 }
